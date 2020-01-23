@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+  <?define sourceFolder="C:\Users\selva\source\repos\ClientUI\bin\Release\"?>
+  <Bundle Name="ClientUIEXE" Version="1.0.0.0" Manufacturer="Citi" UpgradeCode="f72aaaea-4449-4846-bdda-e38e662a93d1"
+        IconSourceFile="C:\Users\selva\source\repos\ClientUI\Images\Citiicon2.ico">    
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
+      <bal:WixStandardBootstrapperApplication
+        LicenseFile="C:\Users\selva\source\repos\SetupExeDeploy\License\Licenseterm.rtf"
+        LogoFile="C:\Users\selva\source\repos\ClientUI\Images\Citiicon2.ico"/>
+    </BootstrapperApplicationRef>
+    <!--<BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />-->
+    <!-- <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
+      <bal:WixStandardBootstrapperApplication
+        LicenseUrl="https://www.citigroup.com/citi/terms.html"
+        LogoFile="C:\Users\selva\source\repos\ClientUI\Images\Citiicon2.ico"
+            /> </BootstrapperApplicationRef>-->
+      <Chain>
+      <!-- TODO: Define the list of chained packages. -->
+      <PackageGroupRef Id="NetFx47Redist"/>
+      <MsiPackage SourceFile="C:\Users\selva\source\repos\SetupMSIDeploy\bin\Release\ClientUIMSI.msi" />      
+    </Chain>
+  </Bundle>   
+  <Fragment>
+    <?define NetFx47MinRelease = 460798 ?>
+    <?define NetFx47WebLink = http://download.microsoft.com/download/A/E/A/AEAE0F3F-96E9-4711-AADA-5E35EF902306/NDP47-KB3186500-Web.exe ?>
+    <?define NetFx47RedistLink = http://download.microsoft.com/download/D/D/3/DD35CC25-6E9C-484B-A746-C5BE0C923290/NDP47-KB3186497-x86-x64-AllOS-ENU.exe ?>
+    <?define NetFx47EulaLink = http://referencesource.microsoft.com/license.html ?>
+
+    <WixVariable Id="WixMbaPrereqPackageId" Value="NetFx47Redist" />
+    <WixVariable Id="WixMbaPrereqLicenseUrl" Value="$(var.NetFx47EulaLink)" Overridable="yes" />
+    <WixVariable Id="NetFx47RedistDetectCondition" Value="NETFRAMEWORK45 &gt;= $(var.NetFx47MinRelease)" Overridable="yes" />
+    <WixVariable Id="NetFx47RedistInstallCondition" Value="" Overridable="yes" />
+    <WixVariable Id="NetFx47RedistPackageDirectory" Value="C:\Users\selva\source\repos\SetupExeDeploy\NETFX47" Overridable="yes" />
+
+    <PackageGroup Id="NetFx47Redist">
+      <ExePackage
+          DisplayName="Microsoft .NET Framework 4.7.2"
+          InstallCommand="/q /norestart /ChainingPackage &quot;[WixBundleName]&quot; /log &quot;[NetFx47FullLog].html&quot;"
+          RepairCommand="/q /norestart /repair /ChainingPackage &quot;[WixBundleName]&quot; /log &quot;[NetFx47FullLog].html&quot;"
+          UninstallCommand="/uninstall /q /norestart /ChainingPackage &quot;[WixBundleName]&quot; /log &quot;[NetFx47FullLog].html&quot;"
+          PerMachine="yes"
+          DetectCondition="!(wix.NetFx47RedistDetectCondition)"
+          InstallCondition="!(wix.NetFx47RedistInstallCondition)"
+          Id="NetFx47Redist"
+          Vital="yes"
+          Permanent="yes"
+          Protocol="netfx4"
+          DownloadUrl="$(var.NetFx47RedistLink)"
+          LogPathVariable="NetFx47FullLog"
+          Compressed="no"
+          SourceFile="C:\Users\selva\source\repos\SetupExeDeploy\NETFX47\NDP472-KB4054530-x86-x64-AllOS-ENU.exe"
+          Name="!(wix.NetFx47RedistPackageDirectory)NDP472-KB4054530-x86-x64-AllOS-ENU.exe">
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>  
+</Wix>

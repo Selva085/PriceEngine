@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+    <?define sourceFolder="C:\Users\selva\source\repos\ClientUI\bin\Release\"?>  
+  <Product Id="*" UpgradeCode="63db2ca2-066e-4c57-aa3f-fbdb11f723a2" Version="1.0.0.0" Language="1033" Name="CDATDesktopAPP" Manufacturer="Citi">    
+    <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine"/>
+    <Media Id="1" Cabinet="myapplication.cab" EmbedCab="yes" />
+    <PropertyRef Id="NETFRAMEWORK45"/>
+
+    <!-- Add installer icon -->
+    <Icon Id="Citiicon2.ico" SourceFile="C:\Users\selva\source\repos\ClientUI\Images\Citiicon2.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="Citiicon2.ico" />
+
+    <!-- Check for .NET version -->
+    <Condition Message="This application requires .NET Framework 4.7.2. Please install the .NET Framework then run this installer again.">
+    <![CDATA[Installed OR (NETFRAMEWORK45 AND NETFRAMEWORK45 >= "#460805")]]>
+    </Condition>
+    
+    <!-- Step  1: Define the directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="APPLICATIONROOTDIRECTORY" Name="CDATDeskAPP"/>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="CDATDeskAPP"/>
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop">
+      </Directory>
+    </Directory>
+
+    <!-- Step 2: Add files to your installer package -->
+    <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
+      <Component Id="ClientUI.exe" Guid="dc96fca5-cedf-4fd2-97cf-08f13bb57576">
+        <File Id="ClientUI.exe" Source="$(var.sourceFolder)ClientUI.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="ClientUI.exe.config" Guid="f347965a-1a3b-4d2d-9deb-d3d51b2e557c">
+        <File Id="ClientUI.exe.config" Source="$(var.sourceFolder)\ClientUI.exe.config" KeyPath="yes"/>
+      </Component>   
+      <!--<Component Id="Net.Core.License.dll" Guid="f347965a-1a3b-4d2d-9deb-d3d51b2e557c">
+        <File Id="Net.Core.License.dll" Source="$(var.sourceFolder)\<DLL_NAME>.dll" KeyPath="yes"/>
+      </Component>-->    
+    </DirectoryRef>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="41cdba80-edb9-4d71-8157-95527beb73a2">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+            Name="CDAT"
+            Description="CDAT"
+            Target="[#ClientUI.exe]"
+            WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\CDATforCiti" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ApplicationShortcutDesktop" Guid="63d05c8e-192e-44e8-ab70-d56ad3c08baa">
+        <Shortcut Id="ApplicationDesktopShortcut"
+            Name="CDAT"
+            Description="CDAT"
+            Target="[#ClientUI.exe]"
+            WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        <RemoveFolder Id="DesktopFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software/CDATforCiti" Name="installed"  Type="integer" Value="1"  KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Step 3: Tell WiX to install the files -->
+    <Feature Id="MainApplication" Title="Main Application" Level="1">
+      <ComponentRef Id="ClientUI.exe" />
+      <ComponentRef Id="ClientUI.exe.config" />
+      <!--<ComponentRef Id="<Dll_name>.dll" />-->     
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationShortcutDesktop" />
+    </Feature>
+    <!-- Step 4: Sign the MSI Install, else Web user will get unknown publisher message -->
+    <!-- Signing is done by executing a post-build batch file configured in project properties -->  
+  </Product>     
+</Wix>
